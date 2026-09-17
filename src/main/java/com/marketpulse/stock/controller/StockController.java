@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 //It tells Spring that this class handles REST requests and its methods return data for the HTTP response.
 @RequestMapping("/api/stocks")
@@ -26,10 +28,14 @@ public class StockController {
     @PostMapping
     public ResponseEntity<StockResponse> createStock(
             @RequestBody StockRequest stockRequest) {
-
         // We will call the service here
         StockResponse stockResponse= this.stockService.createStock(stockRequest);
         return  ResponseEntity.status(HttpStatus.CREATED).body(stockResponse);
-
+    }
+    @GetMapping
+    public ResponseEntity<List<StockResponse>> getAllStocks() {
+        // call service
+        List<StockResponse> stockResponse=this.stockService.getAllStocks();
+        return ResponseEntity.ok(stockResponse);
     }
 }

@@ -7,6 +7,8 @@ import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StockService {
     private final StockRepository stockRepository;
@@ -46,6 +48,22 @@ public class StockService {
         );
 
 
+    }
+
+    public List<StockResponse> getAllStocks() {
+
+        List<Stock> stocks = stockRepository.findAll();
+
+        // convert List<Stock> → List<StockResponse>
+        return stocks.stream()
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ))
+                .toList();
     }
 
 }
