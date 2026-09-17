@@ -3,6 +3,7 @@ package com.marketpulse.stock.controller;
 import com.marketpulse.stock.dto.StockResponse;
 import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.service.StockService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +20,9 @@ public class StockController {
     }
 
     @GetMapping("/{symbol}")
-    public StockResponse getStockBySymbol(@PathVariable String symbol){
-        return this.stockService.getStockBySymbol(symbol);
+    public ResponseEntity<StockResponse> getStockBySymbol(@PathVariable String symbol){
+        StockResponse stockResponse =this.stockService.getStockBySymbol(symbol);
+        return ResponseEntity.ok(stockResponse);
 
     }
 }
