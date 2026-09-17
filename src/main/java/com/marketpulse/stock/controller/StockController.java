@@ -44,4 +44,12 @@ public class StockController {
         StockResponse stockResponse = stockService.updateStock(symbol, stockUpdateRequest);
         return ResponseEntity.ok(stockResponse);
     }
+    @DeleteMapping("/{symbol}")
+    public ResponseEntity<Void> deleteStock(@PathVariable String symbol) {
+        // call service
+        this.stockService.deleteStock(symbol);
+        // return 204
+        return ResponseEntity.noContent().build();
+
+    }
 }

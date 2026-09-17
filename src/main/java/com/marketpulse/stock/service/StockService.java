@@ -89,4 +89,11 @@ public class StockService {
                 updatedStock.getSector()
         );
     }
+    public void deleteStock(String symbol) {
+        // find stock by symbol
+        Stock stock = this.stockRepository.findBySymbol(symbol)
+                .orElseThrow(()-> new StockNotFoundException("Stock not found : "+symbol));
+        // delete the existing stock
+        this.stockRepository.delete(stock);
+    }
 }
