@@ -4,7 +4,7 @@ import com.marketpulse.stock.dto.StockRequest;
 import com.marketpulse.stock.dto.StockResponse;
 import com.marketpulse.stock.dto.StockUpdateRequest;
 import com.marketpulse.stock.service.StockService;
-import org.springframework.http.HttpRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class StockController {
     }
     @PostMapping
     public ResponseEntity<StockResponse> createStock(
-            @RequestBody StockRequest stockRequest) {
+            @RequestBody @Valid StockRequest stockRequest) {
         // We will call the service here
         StockResponse stockResponse= this.stockService.createStock(stockRequest);
         return  ResponseEntity.status(HttpStatus.CREATED).body(stockResponse);
@@ -40,7 +40,7 @@ public class StockController {
         return ResponseEntity.ok(stockResponse);
     }
     @PutMapping("/{symbol}")
-    public ResponseEntity<StockResponse> updateStock(@PathVariable String symbol, @RequestBody StockUpdateRequest stockUpdateRequest) {
+    public ResponseEntity<StockResponse> updateStock(@PathVariable String symbol, @RequestBody @Valid StockUpdateRequest stockUpdateRequest) {
         StockResponse stockResponse = stockService.updateStock(symbol, stockUpdateRequest);
         return ResponseEntity.ok(stockResponse);
     }

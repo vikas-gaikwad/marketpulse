@@ -1,5 +1,6 @@
 package com.marketpulse.stock.service;
 
+import com.marketpulse.exception.StockAlreadyExistsException;
 import com.marketpulse.exception.StockNotFoundException;
 import com.marketpulse.stock.dto.StockRequest;
 import com.marketpulse.stock.dto.StockResponse;
@@ -9,7 +10,6 @@ import com.marketpulse.stock.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StockService {
@@ -32,6 +32,9 @@ public class StockService {
         );
     }
     public StockResponse createStock(StockRequest stockRequest) {
+        if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()){
+            throw new StockAlreadyExistsException("Stock already exists: "+ stockRequest.getSymbol());
+        }
         Stock stock = new Stock();
 
         stock.setSymbol(stockRequest.getSymbol());
