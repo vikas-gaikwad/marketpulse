@@ -1,13 +1,12 @@
 package com.marketpulse.stock.controller;
 
+import com.marketpulse.stock.dto.StockRequest;
 import com.marketpulse.stock.dto.StockResponse;
-import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.service.StockService;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 //It tells Spring that this class handles REST requests and its methods return data for the HTTP response.
@@ -23,6 +22,14 @@ public class StockController {
     public ResponseEntity<StockResponse> getStockBySymbol(@PathVariable String symbol){
         StockResponse stockResponse =this.stockService.getStockBySymbol(symbol);
         return ResponseEntity.ok(stockResponse);
+    }
+    @PostMapping
+    public ResponseEntity<StockResponse> createStock(
+            @RequestBody StockRequest stockRequest) {
+
+        // We will call the service here
+        StockResponse stockResponse= this.stockService.createStock(stockRequest);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(stockResponse);
 
     }
 }
