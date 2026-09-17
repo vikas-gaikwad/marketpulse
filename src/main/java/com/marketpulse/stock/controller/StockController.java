@@ -2,6 +2,7 @@ package com.marketpulse.stock.controller;
 
 import com.marketpulse.stock.dto.StockRequest;
 import com.marketpulse.stock.dto.StockResponse;
+import com.marketpulse.stock.dto.StockUpdateRequest;
 import com.marketpulse.stock.service.StockService;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,11 @@ public class StockController {
     public ResponseEntity<List<StockResponse>> getAllStocks() {
         // call service
         List<StockResponse> stockResponse=this.stockService.getAllStocks();
+        return ResponseEntity.ok(stockResponse);
+    }
+    @PutMapping("/{symbol}")
+    public ResponseEntity<StockResponse> updateStock(@PathVariable String symbol, @RequestBody StockUpdateRequest stockUpdateRequest) {
+        StockResponse stockResponse = stockService.updateStock(symbol, stockUpdateRequest);
         return ResponseEntity.ok(stockResponse);
     }
 }

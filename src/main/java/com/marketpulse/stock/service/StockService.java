@@ -3,11 +3,13 @@ package com.marketpulse.stock.service;
 import com.marketpulse.exception.StockNotFoundException;
 import com.marketpulse.stock.dto.StockRequest;
 import com.marketpulse.stock.dto.StockResponse;
+import com.marketpulse.stock.dto.StockUpdateRequest;
 import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StockService {
@@ -66,4 +68,25 @@ public class StockService {
                 .toList();
     }
 
+    public StockResponse updateStock(String symbol, StockUpdateRequest stockUpdateRequest) {
+
+        // find stock
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(()->new StockNotFoundException("Stock not found"+symbol));
+        // update fields
+        stock.setCompanyName(stockUpdateRequest.getCompanyName());
+        stock.setSector(stockUpdateRequest.getSector());
+        stock.setExchange(stockUpdateRequest.getExchange());
+
+        // save
+        Stock updatedStock=this.stockRepository.save(stock);
+        // return StockResponse
+        return new StockResponse(
+                updatedStock.getId(),
+                updatedStock.getSymbol(),
+                updatedStock.getCompanyName(),
+                updatedStock.getExchange(),
+                updatedStock.getSector()
+        );
+    }
 }
