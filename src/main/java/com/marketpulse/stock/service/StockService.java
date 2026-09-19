@@ -9,6 +9,9 @@ import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 @Service
@@ -18,9 +21,10 @@ public class StockService {
     public StockService(StockRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
-    public StockResponse getStockBySymbol(String symbol){
-        Stock stock  = stockRepository.findBySymbol(symbol)
-                .orElseThrow(()->
+
+    public StockResponse getStockBySymbol(String symbol) {
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() ->
                         new StockNotFoundException("Stock not found: " + symbol));
 
         return new StockResponse(
@@ -31,9 +35,10 @@ public class StockService {
                 stock.getSector()
         );
     }
+
     public StockResponse createStock(StockRequest stockRequest) {
-        if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()){
-            throw new StockAlreadyExistsException("Stock already exists: "+ stockRequest.getSymbol());
+        if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()) {
+            throw new StockAlreadyExistsException("Stock already exists: " + stockRequest.getSymbol());
         }
         Stock stock = new Stock();
 
@@ -55,34 +60,34 @@ public class StockService {
 
     }
 
-    public List<StockResponse> getAllStocks() {
+    public Page<StockResponse> getAllStocks(Pageable pageable) {
 
-        List<Stock> stocks = stockRepository.findAll();
+        Page<Stock> stocks = stockRepository.findAll(pageable);
 
         // convert List<Stock> → List<StockResponse>
-        return stocks.stream()
+        return stocks
                 .map(stock -> new StockResponse(
                         stock.getId(),
                         stock.getSymbol(),
                         stock.getCompanyName(),
                         stock.getExchange(),
                         stock.getSector()
-                ))
-                .toList();
+                ));
+
     }
 
     public StockResponse updateStock(String symbol, StockUpdateRequest stockUpdateRequest) {
 
         // find stock
         Stock stock = stockRepository.findBySymbol(symbol)
-                .orElseThrow(()->new StockNotFoundException("Stock not found"+symbol));
+                .orElseThrow(() -> new StockNotFoundException("Stock not found" + symbol));
         // update fields
         stock.setCompanyName(stockUpdateRequest.getCompanyName());
         stock.setSector(stockUpdateRequest.getSector());
         stock.setExchange(stockUpdateRequest.getExchange());
 
         // save
-        Stock updatedStock=this.stockRepository.save(stock);
+        Stock updatedStock = this.stockRepository.save(stock);
         // return StockResponse
         return new StockResponse(
                 updatedStock.getId(),
@@ -92,10 +97,11 @@ public class StockService {
                 updatedStock.getSector()
         );
     }
+
     public void deleteStock(String symbol) {
         // find stock by symbol
         Stock stock = this.stockRepository.findBySymbol(symbol)
-                .orElseThrow(()-> new StockNotFoundException("Stock not found : "+symbol));
+                .orElseThrow(() -> new StockNotFoundException("Stock not found : " + symbol));
         // delete the existing stock
         this.stockRepository.delete(stock);
     }

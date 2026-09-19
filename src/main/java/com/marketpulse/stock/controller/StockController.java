@@ -5,6 +5,10 @@ import com.marketpulse.stock.dto.StockResponse;
 import com.marketpulse.stock.dto.StockUpdateRequest;
 import com.marketpulse.stock.service.StockService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +38,12 @@ public class StockController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(stockResponse);
     }
     @GetMapping
-    public ResponseEntity<List<StockResponse>> getAllStocks() {
+    public ResponseEntity<Page<StockResponse>> getAllStocks(@PageableDefault(size = 10,page = 0) Pageable pageable) {
         // call service
-        List<StockResponse> stockResponse=this.stockService.getAllStocks();
+        if (pageable.getPageSize()>50){
+            PageRequest.of(pageable.getPageNumber(),50,pageable.getSort());
+        }
+        Page<StockResponse> stockResponse=this.stockService.getAllStocks(pageable);
         return ResponseEntity.ok(stockResponse);
     }
     @PutMapping("/{symbol}")
