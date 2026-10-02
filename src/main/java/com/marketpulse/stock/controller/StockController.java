@@ -36,12 +36,13 @@ public class StockController {
         return ResponseEntity.ok(stockResponse);
     }
 
-/*
+    /*
     @GetMapping("/search")
     public ResponseEntity<List<StockResponse>> searchStocks(@RequestParam String symbol) {
         List<StockResponse> stockResponse = stockService.searchStocksBySymbol(symbol);
         return ResponseEntity.ok(stockResponse);
-    }*/
+    }
+    */
 
     @PostMapping
     public ResponseEntity<StockResponse> createStock(
@@ -105,10 +106,11 @@ public class StockController {
 
     }
 
- /*
+    /*
     @GetMapping("/exchange")
     public ResponseEntity<List<StockResponse>> getStocksByExchange(@RequestParam String exchange) {
         List<StockResponse> stockResponse = stockService.getStocksByExchange(exchange);
         return ResponseEntity.ok(stockResponse);
-    }*/
+    }
+    */
 }

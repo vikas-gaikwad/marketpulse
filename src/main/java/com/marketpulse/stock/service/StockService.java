@@ -35,7 +35,8 @@ public class StockService {
         );
     }
 
-    /*public List<StockResponse> searchStocksBySymbol(String symbol) {
+    /*
+    public List<StockResponse> searchStocksBySymbol(String symbol) {
         List<Stock> stocks = stockRepository.findBySymbolContainingIgnoreCase(symbol);
         return stocks.stream()
                 .map(stock -> new StockResponse(
@@ -46,7 +47,8 @@ public class StockService {
                         stock.getSector()
                 ))
                 .toList();
-    }*/
+    }
+    */
 
     public StockResponse createStock(StockRequest stockRequest) {
         if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()) {
@@ -129,7 +131,8 @@ public class StockService {
                         stock.getSector()
                 ))
                 .toList();
-    }*/
+        }
+    */
 
     public Page<StockResponse> searchStocks(
             String symbol,
