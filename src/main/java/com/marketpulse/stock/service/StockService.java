@@ -7,12 +7,11 @@ import com.marketpulse.stock.dto.StockResponse;
 import com.marketpulse.stock.dto.StockUpdateRequest;
 import com.marketpulse.stock.entity.Stock;
 import com.marketpulse.stock.repository.StockRepository;
-import org.springframework.stereotype.Service;
-
+import com.marketpulse.stock.specification.StockSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 @Service
 public class StockService {
@@ -35,6 +34,19 @@ public class StockService {
                 stock.getSector()
         );
     }
+
+    /*public List<StockResponse> searchStocksBySymbol(String symbol) {
+        List<Stock> stocks = stockRepository.findBySymbolContainingIgnoreCase(symbol);
+        return stocks.stream()
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ))
+                .toList();
+    }*/
 
     public StockResponse createStock(StockRequest stockRequest) {
         if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()) {
@@ -104,5 +116,56 @@ public class StockService {
                 .orElseThrow(() -> new StockNotFoundException("Stock not found : " + symbol));
         // delete the existing stock
         this.stockRepository.delete(stock);
+    }
+
+   /* public List<StockResponse> getStocksByExchange(String exchange) {
+        List<Stock> stocks = this.stockRepository.findByExchangeIgnoreCase(exchange);
+        return stocks.stream()
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ))
+                .toList();
+    }*/
+
+    public Page<StockResponse> searchStocks(
+            String symbol,
+            String exchange,
+            String sector,
+            Pageable pageable) {
+
+        Specification<Stock> specification = (root, query, criteriaBuilder) -> null;
+
+        if (symbol != null && !symbol.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.symbolContains(symbol)
+            );
+        }
+
+        if (exchange != null && !exchange.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.exchangeEquals(exchange)
+            );
+        }
+
+        if (sector != null && !sector.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.sectorEquals(sector)
+            );
+        }
+
+        Page<Stock> stocks =
+                stockRepository.findAll(specification, pageable);
+
+        return stocks.map(stock -> new StockResponse(
+                stock.getId(),
+                stock.getSymbol(),
+                stock.getCompanyName(),
+                stock.getExchange(),
+                stock.getSector()
+        ));
     }
 }

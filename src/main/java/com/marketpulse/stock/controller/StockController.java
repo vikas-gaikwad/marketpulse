@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -37,6 +36,13 @@ public class StockController {
         return ResponseEntity.ok(stockResponse);
     }
 
+/*
+    @GetMapping("/search")
+    public ResponseEntity<List<StockResponse>> searchStocks(@RequestParam String symbol) {
+        List<StockResponse> stockResponse = stockService.searchStocksBySymbol(symbol);
+        return ResponseEntity.ok(stockResponse);
+    }*/
+
     @PostMapping
     public ResponseEntity<StockResponse> createStock(
             @RequestBody @Valid StockRequest stockRequest) {
@@ -47,6 +53,9 @@ public class StockController {
 
     @GetMapping
     public ResponseEntity<?> getAllStocks(
+            @RequestParam(required = false) String symbol,
+            @RequestParam(required = false) String exchange,
+            @RequestParam(required = false) String sector,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         for (Sort.Order order : pageable.getSort()) {
@@ -71,7 +80,12 @@ public class StockController {
         }
 
         Page<StockResponse> stockResponse =
-                stockService.getAllStocks(pageable);
+                stockService.searchStocks(
+                        symbol,
+                        exchange,
+                        sector,
+                        pageable
+                );
 
         return ResponseEntity.ok(stockResponse);
     }
@@ -90,4 +104,11 @@ public class StockController {
         return ResponseEntity.noContent().build();
 
     }
+
+ /*
+    @GetMapping("/exchange")
+    public ResponseEntity<List<StockResponse>> getStocksByExchange(@RequestParam String exchange) {
+        List<StockResponse> stockResponse = stockService.getStocksByExchange(exchange);
+        return ResponseEntity.ok(stockResponse);
+    }*/
 }
