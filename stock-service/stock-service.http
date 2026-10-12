@@ -1,0 +1,88 @@
+
+### Create a stock
+POST http://localhost:8081/api/stocks
+Content-Type: application/json
+
+{
+  "symbol": "TCS",
+  "companyName": "Tata Consultancy Services",
+  "exchange": "NSE",
+  "sector": "IT"
+}
+
+
+### Get stock by symbol
+GET http://localhost:8081/api/stocks/TCS
+Accept: application/json
+
+
+
+### Get all stocks - first page
+GET http://localhost:8081/api/stocks?page=0&size=10
+Accept: application/json
+
+
+
+### Filter by exchange
+GET http://localhost:8081/api/stocks?exchange=NSE
+Accept: application/json
+
+### Filter by sector
+GET http://localhost:8081/api/stocks?sector=IT
+Accept: application/json
+
+
+### Filter by exchange
+GET http://localhost:8081/api/stocks?exchange=NSE
+Accept: application/json
+
+### Filter by sector
+GET http://localhost:8081/api/stocks?sector=IT
+Accept: application/json
+
+
+### Invalid sort field
+GET http://localhost:8081/api/stocks?sort=invalidField,asc
+Accept: application/json
+
+
+### Request 100 stocks per page
+GET http://localhost:8081/api/stocks?page=0&size=100
+Accept: application/json
+
+
+### Update TCS stock
+PUT http://localhost:8081/api/stocks/TCS
+Content-Type: application/json
+
+{
+  "companyName": "Tata Consultancy Services Limited",
+  "exchange": "NSE",
+  "sector": "IT Services"
+}
+
+
+### Attempt to create duplicate TCS
+POST http://localhost:8081/api/stocks
+Content-Type: application/json
+
+{
+  "symbol": "TCS",
+  "companyName": "Duplicate TCS",
+  "exchange": "NSE",
+  "sector": "IT"
+}
+
+
+### Delete TCS
+DELETE http://localhost:8081/api/stocks/TCS
+
+
+### Verify TCS is deleted
+GET http://localhost:8081/api/stocks/TCS
+Accept: application/json
+
+
+
+
+

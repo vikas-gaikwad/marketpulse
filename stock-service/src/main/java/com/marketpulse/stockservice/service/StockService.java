@@ -1,0 +1,175 @@
+package com.marketpulse.stockservice.service;
+
+import com.marketpulse.exception.StockAlreadyExistsException;
+import com.marketpulse.exception.StockNotFoundException;
+import com.marketpulse.stockservice.dto.StockRequest;
+import com.marketpulse.stockservice.dto.StockResponse;
+import com.marketpulse.stockservice.dto.StockUpdateRequest;
+import com.marketpulse.stockservice.entity.Stock;
+import com.marketpulse.stockservice.repository.StockRepository;
+import com.marketpulse.stockservice.specification.StockSpecification;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+@Service
+public class StockService {
+    private final StockRepository stockRepository;
+
+    public StockService(StockRepository stockRepository) {
+        this.stockRepository = stockRepository;
+    }
+
+    public StockResponse getStockBySymbol(String symbol) {
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() ->
+                        new StockNotFoundException("Stock not found: " + symbol));
+
+        return new StockResponse(
+                stock.getId(),
+                stock.getSymbol(),
+                stock.getCompanyName(),
+                stock.getExchange(),
+                stock.getSector()
+        );
+    }
+
+    /*
+    public List<StockResponse> searchStocksBySymbol(String symbol) {
+        List<Stock> stocks = stockRepository.findBySymbolContainingIgnoreCase(symbol);
+        return stocks.stream()
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ))
+                .toList();
+    }
+    */
+
+    public StockResponse createStock(StockRequest stockRequest) {
+        if (this.stockRepository.findBySymbol(stockRequest.getSymbol()).isPresent()) {
+            throw new StockAlreadyExistsException("Stock already exists: " + stockRequest.getSymbol());
+        }
+        Stock stock = new Stock();
+
+        stock.setSymbol(stockRequest.getSymbol());
+        stock.setCompanyName(stockRequest.getCompanyName());
+        stock.setExchange(stockRequest.getExchange());
+        stock.setSector(stockRequest.getSector());
+
+        Stock savedStock = stockRepository.save(stock);
+        // Now convert savedStock → StockResponse
+        return new StockResponse(
+                savedStock.getId(),
+                savedStock.getSymbol(),
+                savedStock.getCompanyName(),
+                savedStock.getExchange(),
+                savedStock.getSector()
+        );
+
+
+    }
+
+    public Page<StockResponse> getAllStocks(Pageable pageable) {
+
+        Page<Stock> stocks = stockRepository.findAll(pageable);
+
+        // convert List<Stock> → List<StockResponse>
+        return stocks
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ));
+
+    }
+
+    public StockResponse updateStock(String symbol, StockUpdateRequest stockUpdateRequest) {
+
+        // find stock
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new StockNotFoundException("Stock not found" + symbol));
+        // update fields
+        stock.setCompanyName(stockUpdateRequest.getCompanyName());
+        stock.setSector(stockUpdateRequest.getSector());
+        stock.setExchange(stockUpdateRequest.getExchange());
+
+        // save
+        Stock updatedStock = this.stockRepository.save(stock);
+        // return StockResponse
+        return new StockResponse(
+                updatedStock.getId(),
+                updatedStock.getSymbol(),
+                updatedStock.getCompanyName(),
+                updatedStock.getExchange(),
+                updatedStock.getSector()
+        );
+    }
+
+    public void deleteStock(String symbol) {
+        // find stock by symbol
+        Stock stock = this.stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new StockNotFoundException("Stock not found : " + symbol));
+        // delete the existing stock
+        this.stockRepository.delete(stock);
+    }
+
+   /* public List<StockResponse> getStocksByExchange(String exchange) {
+        List<Stock> stocks = this.stockRepository.findByExchangeIgnoreCase(exchange);
+        return stocks.stream()
+                .map(stock -> new StockResponse(
+                        stock.getId(),
+                        stock.getSymbol(),
+                        stock.getCompanyName(),
+                        stock.getExchange(),
+                        stock.getSector()
+                ))
+                .toList();
+        }
+    */
+
+    public Page<StockResponse> searchStocks(
+            String symbol,
+            String exchange,
+            String sector,
+            Pageable pageable) {
+
+        Specification<Stock> specification = (root, query, criteriaBuilder) -> null;
+
+        if (symbol != null && !symbol.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.symbolContains(symbol)
+            );
+        }
+
+        if (exchange != null && !exchange.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.exchangeEquals(exchange)
+            );
+        }
+
+        if (sector != null && !sector.isBlank()) {
+            specification = specification.and(
+                    StockSpecification.sectorEquals(sector)
+            );
+        }
+
+        Page<Stock> stocks =
+                stockRepository.findAll(specification, pageable);
+
+        return stocks.map(stock -> new StockResponse(
+                stock.getId(),
+                stock.getSymbol(),
+                stock.getCompanyName(),
+                stock.getExchange(),
+                stock.getSector()
+        ));
+    }
+}
