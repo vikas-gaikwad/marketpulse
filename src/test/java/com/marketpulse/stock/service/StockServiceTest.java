@@ -76,7 +76,12 @@ class StockServiceTest {
 
         //We're checking that the service actually called the repository.
         verify(stockRepository).findBySymbol("TCS");
-        verify(stockRepository).save(any(Stock.class));
+        verify(stockRepository).save(argThat(stock ->
+                "TCS".equals(stock.getSymbol())
+                        && "TCS Limited".equals(stock.getCompanyName())
+                        && "NSE".equals(stock.getExchange())
+                        && "IT Services".equals(stock.getSector())
+        ));
 
 
     }
@@ -303,4 +308,37 @@ class StockServiceTest {
                 eq(pageable)
         );
     }
+
+    @Test
+    void shouldGetAllStocksWithPagination() {
+        // Arrange
+        Stock stock = new Stock();
+        stock.setId(1L);
+        stock.setSymbol("TCS");
+        stock.setCompanyName("TCS Limited");
+        stock.setExchange("NSE");
+        stock.setSector("IT Services");
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<Stock> stockPage =
+                new PageImpl<>(List.of(stock), pageable, 1);
+
+        when(stockRepository.findAll(pageable))
+                .thenReturn(stockPage);
+
+        // Act
+        Page<StockResponse> response =
+                stockService.getAllStocks(pageable);
+
+        // Assert
+        assertEquals(1, response.getTotalElements());
+        assertEquals(1, response.getTotalPages());
+        assertEquals(0, response.getNumber());
+        assertEquals(10, response.getSize());
+        assertEquals("TCS", response.getContent().get(0).getSymbol());
+
+        verify(stockRepository).findAll(pageable);
+    }
+
 }

@@ -16,6 +16,8 @@ import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -417,4 +419,134 @@ class StockControllerTest {
 
         verifyNoInteractions(stockService);
     }
+
+    @Test
+    void shouldGetAllStocksWithoutFilters() throws Exception {
+
+        StockResponse response = new StockResponse(
+                1L,
+                "TCS",
+                "TCS Limited",
+                "NSE",
+                "IT Services"
+        );
+
+        Page<StockResponse> page = new PageImpl<>(
+                List.of(response),
+                PageRequest.of(0, 10),
+                1
+        );
+
+        when(stockService.getAllStocks(any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/stocks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].symbol").value("TCS"));
+
+        verify(stockService).getAllStocks(any(Pageable.class));
+        verify(stockService, never()).searchStocks(
+                any(),
+                any(),
+                any(),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void shouldLimitPageSizeTo50() throws Exception {
+
+        when(stockService.getAllStocks(any(Pageable.class)))
+                .thenAnswer(invocation -> {
+                    Pageable pageable = invocation.getArgument(0);
+
+                    assertEquals(50, pageable.getPageSize());
+
+                    return new PageImpl<>(
+                            List.of(),
+                            PageRequest.of(0, 50),
+                            0
+                    );
+                });
+
+        mockMvc.perform(
+                        get("/api/stocks")
+                                .param("page", "0")
+                                .param("size", "100")
+                )
+                .andExpect(status().isOk());
+
+        verify(stockService).getAllStocks(any(Pageable.class));
+    }
+
+    @Test
+    void shouldRejectInvalidSortFieldWhenFilterIsProvided()
+            throws Exception {
+
+        mockMvc.perform(
+                        get("/api/stocks")
+                                .param("symbol", "TCS")
+                                .param("sort", "price,desc")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("Invalid sort field: price"));
+
+        verifyNoInteractions(stockService);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdateCompanyNameExceeds100Characters()
+            throws Exception {
+
+        String longCompanyName = "A".repeat(101);
+
+        mockMvc.perform(
+                        put("/api/stocks/TCS")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                    {
+                                        "companyName": "%s",
+                                        "exchange": "NSE",
+                                        "sector": "IT Services"
+                                    }
+                                    """.formatted(longCompanyName))
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
+
+        verify(stockService, never())
+                .updateStock(
+                        anyString(),
+                        any(StockUpdateRequest.class)
+                );
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdateCompanyNameIsTooShort()
+            throws Exception {
+
+        mockMvc.perform(
+                        put("/api/stocks/TCS")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                    {
+                                        "companyName": "A",
+                                        "exchange": "NSE",
+                                        "sector": "IT Services"
+                                    }
+                                    """)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400));
+
+        verify(stockService, never())
+                .updateStock(
+                        anyString(),
+                        any(StockUpdateRequest.class)
+                );
+    }
+
 }

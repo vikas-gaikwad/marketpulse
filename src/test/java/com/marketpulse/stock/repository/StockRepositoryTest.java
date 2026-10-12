@@ -1,34 +1,33 @@
+
 package com.marketpulse.stock.repository;
 
+import com.marketpulse.stock.entity.Stock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-//import com.marketpulse.stock.entity.Stock;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-//import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.domain.Sort;
-//
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+import java.util.Optional;
 
-//@DataJpaTest
-//@AutoConfigureTestDatabase(
-//        replace = AutoConfigureTestDatabase.Replace.NONE
-//)
+import static org.junit.jupiter.api.Assertions.*;
+
+@DataJpaTest
+@AutoConfigureTestDatabase(
+        replace = AutoConfigureTestDatabase.Replace.NONE
+)
 class StockRepositoryTest {
 
-    /*@Autowired
+    @Autowired
     private StockRepository stockRepository;
 
     @BeforeEach
     void setUp() {
-
         stockRepository.deleteAll();
 
         Stock tcs = new Stock();
@@ -62,19 +61,16 @@ class StockRepositoryTest {
 
     @Test
     void shouldFindStockBySymbol() {
-
         Optional<Stock> result =
                 stockRepository.findBySymbol("TCS");
 
         assertTrue(result.isPresent());
         assertEquals("TCS", result.get().getSymbol());
-        assertEquals("TCS Limited",
-                result.get().getCompanyName());
+        assertEquals("TCS Limited", result.get().getCompanyName());
     }
 
     @Test
     void shouldReturnEmptyWhenSymbolDoesNotExist() {
-
         Optional<Stock> result =
                 stockRepository.findBySymbol("ABC");
 
@@ -83,13 +79,9 @@ class StockRepositoryTest {
 
     @Test
     void shouldSupportPagination() {
-
-        Pageable pageable =
-                PageRequest.of(
-                        0,
-                        2,
-                        Sort.by("symbol").ascending()
-                );
+        Pageable pageable = PageRequest.of(
+                0, 2, Sort.by("symbol").ascending()
+        );
 
         Page<Stock> result =
                 stockRepository.findAll(pageable);
@@ -103,54 +95,38 @@ class StockRepositoryTest {
 
     @Test
     void shouldSupportSortingBySymbol() {
-
-        Pageable pageable =
-                PageRequest.of(
-                        0,
-                        10,
-                        Sort.by("symbol").ascending()
-                );
+        Pageable pageable = PageRequest.of(
+                0, 10, Sort.by("symbol").ascending()
+        );
 
         Page<Stock> result =
                 stockRepository.findAll(pageable);
 
         List<Stock> stocks = result.getContent();
 
-        assertEquals("INFOSYS",
-                stocks.get(0).getSymbol());
-
-        assertEquals("RELIANCE",
-                stocks.get(1).getSymbol());
-
-        assertEquals("TCS",
-                stocks.get(2).getSymbol());
-
-        assertEquals("TECHM",
-                stocks.get(3).getSymbol());
+        assertEquals("INFOSYS", stocks.get(0).getSymbol());
+        assertEquals("RELIANCE", stocks.get(1).getSymbol());
+        assertEquals("TCS", stocks.get(2).getSymbol());
+        assertEquals("TECHM", stocks.get(3).getSymbol());
     }
 
     @Test
     void shouldSaveStock() {
-
         Stock stock = new Stock();
-
         stock.setSymbol("HDFCBANK");
         stock.setCompanyName("HDFC Bank");
         stock.setExchange("NSE");
         stock.setSector("Banking");
 
-        Stock saved =
-                stockRepository.save(stock);
+        Stock saved = stockRepository.save(stock);
 
         assertNotNull(saved.getId());
         assertEquals("HDFCBANK", saved.getSymbol());
-        assertEquals("HDFC Bank",
-                saved.getCompanyName());
+        assertEquals("HDFC Bank", saved.getCompanyName());
     }
 
     @Test
     void shouldDeleteStock() {
-
         Optional<Stock> stock =
                 stockRepository.findBySymbol("TCS");
 
@@ -162,5 +138,5 @@ class StockRepositoryTest {
                 stockRepository.findBySymbol("TCS");
 
         assertTrue(result.isEmpty());
-    }*/
+    }
 }
