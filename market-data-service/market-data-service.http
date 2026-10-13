@@ -1,0 +1,41 @@
+### Create TCS daily market data
+POST http://localhost:8082/api/market-data
+Content-Type: application/json
+
+{
+  "symbol": "TCS",
+  "tradingDate": "2026-10-12",
+  "openPrice": 3200.00,
+  "highPrice": 3250.00,
+  "lowPrice": 3180.00,
+  "closePrice": 3230.00,
+  "volume": 1500000
+}
+
+### Get latest TCS candle
+GET http://localhost:8082/api/market-data/TCS/latest
+
+
+### Get TCS history
+GET http://localhost:8082/api/market-data/TCS/history?from=2026-10-01&to=2026-10-31
+
+### Unknown symbol
+GET http://localhost:8082/api/market-data/UNKNOWN/latest
+
+
+### Invalid price
+POST http://localhost:8082/api/market-data
+Content-Type: application/json
+
+{
+  "symbol": "INFY",
+  "tradingDate": "2026-10-12",
+  "openPrice": -100,
+  "highPrice": 110,
+  "lowPrice": 90,
+  "closePrice": 105,
+  "volume": 1000
+}
+
+### Invalid date range
+GET http://localhost:8082/api/market-data/TCS/history?from=2026-10-31&to=2026-10-01
