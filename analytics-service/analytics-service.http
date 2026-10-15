@@ -1,0 +1,24 @@
+POST http://localhost:8082/api/market-data
+Content-Type: application/json
+
+{
+  "symbol": "TCS",
+  "tradingDate": "2026-10-09",
+  "openPrice": 3270,
+  "highPrice": 3310,
+  "lowPrice": 3260,
+  "closePrice": 3300,
+  "volume": 1750000
+}
+
+### Verify service-to-service communication
+GET http://localhost:8083/api/analytics/TCS/market-data?from=2026-10-01&to=2026-10-31
+
+### Calculate TCS EMA(1)
+GET http://localhost:8083/api/analytics/TCS/ema?period=1&from=2026-10-01&to=2026-10-31
+
+### Calculate TCS RSI(14)
+GET http://localhost:8083/api/analytics/TCS/rsi?period=14&from=2026-09-21&to=2026-10-09
+
+### RSI - Insufficient historical data
+GET http://localhost:8083/api/analytics/TCS/rsi?period=14&from=2026-10-12&to=2026-10-12
